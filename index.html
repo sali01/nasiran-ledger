@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasiran-e Husain Accounting Cloud</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Modern Action Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        .hidden { display: none !important; }
+        
+        /* Premium Sidebar Layout Customization */
+        .sidebar { min-height: 100vh; background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; position: relative; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+        .sidebar .nav-link { color: #94a3b8; border-radius: 8px; margin-bottom: 6px; padding: 12px 16px; font-weight: 500; transition: all 0.2s ease; text-decoration: none; display: block; }
+        .sidebar .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
+        .sidebar .nav-link:hover { color: #f8fafc; background-color: #334155; transform: translateX(4px); }
+        .sidebar .nav-link.active { color: #fff; background-color: #0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+        
+        /* Form & Card Polishing */
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); background: #ffffff; }
+        .form-label { font-weight: 600; color: #475569; font-size: 0.9rem; margin-bottom: 6px; }
+        .form-control, .form-select { border-radius: 10px; border: 1px solid #cbd5e1; padding: 10px 14px; transition: all 0.2s ease; }
+        .form-control:focus, .form-select:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+        .table-container { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .page-header { border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; }
+        
+        /* Metric Cards styling */
+        .metric-card { padding: 20px; border-radius: 16px; color: white; display: flex; align-items: center; justify-content: space-between; }
+        .metric-income { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .metric-expense { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
+    </style>
+</head>
+<body>
+
+    <!-- ================= 1. LOGIN SCREEN ================= -->
+    <div id="login-layer" class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="card p-5 shadow-lg" style="width: 100%; max-width: 450px; border-top: 5px solid #0284c7;">
+            <div class="text-center mb-4">
+                <div class="d-inline-block mb-3">
+                    <img src="logo-tr.png" alt="Logo" style="height: 80px; width: auto; object-fit: contain;">
+                </div>
+                <h3 class="fw-bold text-dark">Nasiran-e Husain</h3>
+                <p class="text-muted small">Accounting Cloud Workspace</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><i class="fa-solid fa-envelope me-2"></i>Email Address</label>
+                <input type="email" id="login-uid" class="form-control" placeholder="name@company.com">
+            </div>
+            <div class="mb-4">
+                <label class="form-label"><i class="fa-solid fa-lock me-2"></i>Password</label>
+                <input type="password" id="login-pwd" class="form-control" placeholder="••••••••">
+            </div>
+            <button onclick="handleLogin()" class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 shadow-sm">
+                Sign In <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= 2. MAIN APPLICATION LAYER ================= -->
+    <div id="app-layer" class="container-fluid hidden">
+        <div class="row">
+            
+            <!-- Sidebar Navigation Menu -->
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar p-4">
+                <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                    <img src="logo-tr.png" alt="Logo" style="height: 32px; width: auto; margin-right: 10px; object-fit: contain;">
+                    <span class="fs-6 fw-bold text-white tracking-tight" style="line-height: 1.2;">
+                        Nasiran-e Husain<br>
+                        <span class="text-info small" style="font-size: 0.75rem;">Accounting Cloud</span>
+                    </span>
+                </div>
+                
+                <div class="small px-2 text-uppercase fw-bold text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Workspace</div>
+                <ul class="nav flex-column">
+                    <li class="nav-item admin-only">
+                        <a href="#" class="nav-link" id="menu-page1" onclick="showPage('page1')">
+                            <i class="fa-solid fa-users"></i> User Registry
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="#" class="nav-link" id="menu-page2" onclick="showPage('page2')">
+                            <i class="fa-solid fa-tags"></i> Account Heads
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="menu-page3" onclick="showPage('page3')">
+                            <i class="fa-solid fa-pen-to-square"></i> Daily Entry
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="menu-page4" onclick="showPage('page4')">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Extract Reports
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="p-3" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.15);">
+                    <div class="mb-2 small text-muted text-truncate">
+                        <i class="fa-solid fa-circle-user me-1 text-success"></i> User: <strong id="lbl-active-user" class="text-white"></strong>
+                    </div>
+                    <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm w-100 rounded-2">
+                        <i class="fa-solid fa-power-off me-1"></i> Sign Out
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content Processing Workspace Canvas -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 py-4">
+                
+                <!-- PAGE 1: USER MANAGEMENT -->
+                <div id="page1" class="app-page hidden">
+                    <div class="page-header"><h2><i class="fa-solid fa-users-gear text-primary me-2"></i>User Management Console</h2></div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card p-4 shadow-sm">
+                                <h5 class="fw-bold mb-3">Create Cloud Account</h5>
+                                <div class="mb-3"><label class="form-label">User Email</label><input type="email" id="user-uid" class="form-control" placeholder="staff@company.com"></div>
+                                <div class="mb-3"><label class="form-label">Password</label><input type="password" id="user-pwd" class="form-control" placeholder="Min 6 characters"></div>
+                                <div class="mb-3">
+                                    <label class="form-label">Authority Level</label>
+                                    <select id="user-role" class="form-select">
+                                        <option value="User">Simple User (Data Entry)</option>
+                                        <option value="Admin">Administrator (Full Rights)</option>
+                                    </select>
+                                </div>
+                                <button onclick="saveUserAccount()" class="btn btn-primary w-100 py-2 mt-2"><i class="fa-solid fa-user-plus me-1"></i> Register Live User</button>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="table-container">
+                                <h5 class="fw-bold mb-3">Active System Access List</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light"><tr><th>User Email ID</th><th>Authority Status</th></tr></thead>
+                                        <tbody id="tbl-users-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE 2: ACCOUNT HEAD MANAGEMENT -->
+                <div id="page2" class="app-page hidden">
+                    <div class="page-header"><h2><i class="fa-solid fa-folder-tree text-success me-2"></i>Define Account Heads</h2></div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card p-4 shadow-sm">
+                                <h5 class="fw-bold mb-3">Add Ledger Category</h5>
+                                <div class="mb-3"><label class="form-label">Head Title Name</label><input type="text" id="head-name" class="form-control" placeholder="e.g. Office Rent, Consultancy"></div>
+                                <div class="mb-3">
+                                    <label class="form-label">Classification Group</label>
+                                    <select id="head-type" class="form-select">
+                                        <option value="Income">Income Head</option>
+                                        <option value="Expenditure">Expenditure Head</option>
+                                    </select>
+                                </div>
+                                <button onclick="saveAccountHead()" class="btn btn-success w-100 py-2 mt-2"><i class="fa-solid fa-plus me-1"></i> Commit to Cloud</button>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="table-container">
+                                <h5 class="fw-bold mb-3">Configured Accounting Matrices</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light"><tr><th>Ledger Head Name</th><th>Accounting Class</th></tr></thead>
+                                        <tbody id="tbl-heads-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE 3: DAILY ENTRY FORM -->
+                <div id="page3" class="app-page hidden">
+                    <div class="page-header"><h2><i class="fa-solid fa-file-circle-plus text-info me-2"></i>Daily Transaction Entry</h2></div>
+                    <div class="card p-4 shadow-sm mx-auto mx-md-0" style="max-width: 650px;">
+                        <h5 class="fw-bold mb-4 text-secondary">New Transaction Voucher</h5>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fa-solid fa-calendar-days me-1 text-muted"></i> Date of Entry</label>
+                                <input type="date" id="entry-date" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fa-solid fa-sliders me-1 text-muted"></i> Entry Type</label>
+                                <select id="entry-type" class="form-select" onchange="refreshDynamicHeadDropdown()">
+                                    <option value="Income">🟢 Income</option>
+                                    <option value="Expenditure">🔴 Expenditure</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-layer-group me-1 text-muted"></i> Select Account Head (Dynamic LOV)</label>
+                            <select id="entry-head-select" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-comment-dots me-1 text-muted"></i> Narration / Remarks</label>
+                            <textarea id="entry-narration" class="form-control" rows="3" placeholder="Provide transaction detailed specifics..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fa-solid fa-money-bill-wave me-1 text-muted"></i> Amount Value</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light fw-bold">PKR</span>
+                                <input type="number" id="entry-amount" class="form-control form-control-lg text-primary fw-bold" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <button onclick="saveTransactionEntry()" class="btn btn-primary w-100 py-2.5 fw-bold"><i class="fa-solid fa-cloud-arrow-up me-1"></i> Post Transaction Voucher</button>
+                    </div>
+                </div>
+
+                <!-- PAGE 4: PERIODIC REPORTS EXTRACTION -->
+                <div id="page4" class="app-page hidden">
+                    <div class="page-header"><h2><i class="fa-solid fa-chart-pie text-warning me-2"></i>Financial Reports Studio</h2></div>
+                    
+                    <!-- Search Parameters Card -->
+                    <div class="card p-4 shadow-sm mb-4">
+                        <h5 class="fw-bold mb-3 text-secondary">Filter Ledger Criteria</h5>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">From Date *</label>
+                                <input type="date" id="rpt-from-date" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">To Date *</label>
+                                <input type="date" id="rpt-to-date" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Account Head (Optional)</label>
+                                <select id="rpt-head-select" class="form-select">
+                                    <option value="">-- View All Categories --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="generatePeriodicReport()" class="btn btn-info text-white w-100 py-2 fw-bold"><i class="fa-solid fa-magnifying-glass me-1"></i> Extract</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Metrics Row -->
+                    <div class="row g-3 mb-4 hidden" id="report-metrics-row">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="metric-card metric-income shadow-sm">
+                                <div><div class="small opacity-75">Total Extracted Income</div><h3 class="fw-bold mb-0" id="lbl-rpt-income">$0.00</h3></div>
+                                <i class="fa-solid fa-circle-arrow-up fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="metric-card metric-expense shadow-sm">
+                                <div><div class="small opacity-75">Total Extracted Expenses</div><h3 class="fw-bold mb-0" id="lbl-rpt-expense">$0.00</h3></div>
+                                <i class="fa-solid fa-circle-arrow-down fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Grid Container -->
+                    <div class="table-container hidden" id="report-results-container">
+                        <h5 class="fw-bold mb-3">Extracted Statement Ledger</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-dark">
+                                    <tr><th>Date</th><th>Type</th><th>Ledger Head</th><th>Narration/Description</th><th class="text-end">Amount</th></tr>
+                                </thead>
+                                <tbody id="tbl-reports-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ================= 3. FIREBASE MODULE COUPLING LAYER ================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // ⚠️ PASTE YOUR FIREBASE CONSOLE KEYS PRECISELY OVER THIS BLANK CONFIG BLOCK:
+ 
+        const firebaseConfig = {
+    apiKey: "AIzaSyAsucFwlWJWsVx9uhFRagoD-DRE-slyi34",
+    authDomain: "nasirandb-5f7c8.firebaseapp.com",
+    projectId: "nasirandb-5f7c8",
+    storageBucket: "nasirandb-5f7c8.firebasestorage.app",
+    messagingSenderId: "671090410558",
+    appId: "1:671090410558:web:a8474eaaea735371893d6f"
+      };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let cachedHeads = [];
+        let globalUserRole = "User";
+
+        // --- AUTHENTICATION FLOWS ---
+        window.handleLogin = function() {
+            const email = document.getElementById('login-uid').value.trim();
+            const password = document.getElementById('login-pwd').value;
+            if(!email || !password) return alert("Please clarify all credential blocks.");
+            signInWithEmailAndPassword(auth, email, password).catch(err => alert("Access Failure: " + err.message));
+        };
+
+        window.handleLogout = function() { signOut(auth); };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                globalUserRole = "User";
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) globalUserRole = docSnap.data().userType;
+                } catch (e) { console.log("Role fetch delayed.", e); }
+
+                // Master Admin Email Security Pass Override
+                if (user.email === "sshujaat.ali@hotmail.com") globalUserRole = "Admin";
+                bootDashboard(user);
+            } else {
+                teardownDashboard();
+            }
+        });
+
+        function bootDashboard(user) {
+            document.getElementById('login-layer').classList.add('hidden');
+            document.getElementById('app-layer').classList.remove('hidden');
+            document.getElementById('lbl-active-user').innerText = user.email;
+
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if(globalUserRole === 'Admin') el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+
+            listenToCloudData();
+            showPage(globalUserRole === 'Admin' ? 'page1' : 'page3');
+        }
+
+        function teardownDashboard() {
+            document.getElementById('app-layer').classList.add('hidden');
+            document.getElementById('login-layer').classList.remove('hidden');
+        }
+
+        // --- CLOUD TELEMETRY EMITTERS & SYNCHRONIZERS ---
+        function listenToCloudData() {
+            onSnapshot(collection(db, "users"), (snapshot) => {
+                const tbody = document.getElementById('tbl-users-body');
+                if(tbody) {
+                    tbody.innerHTML = snapshot.docs.map(doc => {
+                        const u = doc.data();
+                        return `<tr><td><i class="fa-solid fa-envelope text-muted me-2"></i><strong>${u.email}</strong></td><td><span class="badge ${u.userType === 'Admin'?'bg-danger':'bg-secondary'}">${u.userType}</span></td></tr>`;
+                    }).join('');
+                }
+            });
+
+            onSnapshot(collection(db, "accountHeads"), (snapshot) => {
+                cachedHeads = snapshot.docs.map(doc => doc.data());
+                
+                const headsTable = document.getElementById('tbl-heads-body');
+                if(headsTable) {
+                    headsTable.innerHTML = cachedHeads.map(h => `
+                        <tr><td><strong>${h.headName}</strong></td><td><span class="badge ${h.headType === 'Income'?'bg-success':'bg-warning text-dark'}">${h.headType}</span></td></tr>
+                    `).join('');
+                }
+
+                const rptSelect = document.getElementById('rpt-head-select');
+                if(rptSelect) {
+                    rptSelect.innerHTML = '<option value="">-- View All Categories --</option>' + 
+                        cachedHeads.map(h => `<option value="${h.headName}">${h.headName} (${h.headType})</option>`).join('');
+                }
+                refreshDynamicHeadDropdown();
+            });
+        }
+
+        // --- SUBMITTING LOGIC (WRITE METHODS) ---
+        window.saveUserAccount = async function() {
+            const email = document.getElementById('user-uid').value.trim();
+            const pwd = document.getElementById('user-pwd').value;
+            const role = document.getElementById('user-role').value;
+            if(!email || pwd.length < 6) return alert("Valid parameters are required.");
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+                await setDoc(doc(db, "users", cred.user.uid), { email: email, userType: role });
+                alert("Account provisioned successfully!");
+                document.getElementById('user-uid').value = ''; document.getElementById('user-pwd').value = '';
+            } catch (err) { alert("Registration issue: " + err.message); }
+        };
+
+        window.saveAccountHead = async function() {
+            const name = document.getElementById('head-name').value.trim();
+            const type = document.getElementById('head-type').value;
+            if(!name) return alert("Title criteria empty.");
+            try {
+                await addDoc(collection(db, "accountHeads"), { headName: name, headType: type });
+                document.getElementById('head-name').value = '';
+            } catch(err) { alert("Error writing head: " + err.message); }
+        };
+
+        window.saveTransactionEntry = async function() {
+            const date = document.getElementById('entry-date').value;
+            const type = document.getElementById('entry-type').value;
+            const head = document.getElementById('entry-head-select').value;
+            const narration = document.getElementById('entry-narration').value.trim();
+            const amount = parseFloat(document.getElementById('entry-amount').value);
+
+            if(!date || !head || isNaN(amount)) return alert("Please verify all data inputs are complete.");
+
+            try {
+                await addDoc(collection(db, "transactions"), {
+                    date: date, type: type, headName: head, narration: narration, amount: amount,
+                    enteredBy: auth.currentUser.email, timestamp: new Date().getTime()
+                });
+                alert("Voucher Posted Successfully!");
+                document.getElementById('entry-narration').value = '';
+                document.getElementById('entry-amount').value = '';
+            } catch (err) { alert("Post action denied: " + err.message); }
+        };
+
+        // --- STATEMENT GENERATION ENGINE ---
+        window.generatePeriodicReport = async function() {
+            const fromDate = document.getElementById('rpt-from-date').value;
+            const toDate = document.getElementById('rpt-to-date').value;
+            const selectedHead = document.getElementById('rpt-head-select').value;
+
+            if(!fromDate || !toDate) return alert("From Date and To Date filters are strictly mandatory.");
+
+            try {
+                let q = query(collection(db, "transactions"), 
+                              where("date", ">=", fromDate), 
+                              where("date", "<=", toDate));
+                
+                const querySnapshot = await getDocs(q);
+                let totalIncome = 0; let totalExpense = 0; let tableHtml = "";
+
+                querySnapshot.forEach((doc) => {
+                    const trans = doc.data();
+                    if(selectedHead && trans.headName !== selectedHead) return;
+
+                    if(trans.type === "Income") totalIncome += trans.amount;
+                    else totalExpense += trans.amount;
+
+                    tableHtml += `
+                        <tr>
+                            <td><code>${trans.date}</code></td>
+                            <td><span class="badge ${trans.type==='Income'?'bg-success':'bg-danger'}">${trans.type}</span></td>
+                            <td><strong>${trans.headName}</strong></td>
+                            <td class="text-muted small">${trans.narration}</td>
+                            <td class="text-end fw-bold ${trans.type==='Income'?'text-success':'text-danger'}">
+                                ${trans.type==='Income'?'+':'-'}$${trans.amount.toFixed(2)}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('lbl-rpt-income').innerText = `$${totalIncome.toFixed(2)}`;
+                document.getElementById('lbl-rpt-expense').innerText = `$${totalExpense.toFixed(2)}`;
+                document.getElementById('tbl-reports-body').innerHTML = tableHtml || `<tr><td colspan="5" class="text-center p-4 text-muted">No records matched specified boundary queries.</td></tr>`;
+
+                document.getElementById('report-metrics-row').classList.remove('hidden');
+                document.getElementById('report-results-container').classList.remove('hidden');
+            } catch (err) { alert("Extraction Matrix Failed: " + err.message); }
+        };
+
+        window.refreshDynamicHeadDropdown = function() {
+            const currentSelectedType = document.getElementById('entry-type').value;
+            const dropDown = document.getElementById('entry-head-select');
+            if(!dropDown) return;
+            const filtered = cachedHeads.filter(h => h.headType === currentSelectedType);
+            dropDown.innerHTML = filtered.map(h => `<option value="${h.headName}">${h.headName}</option>`).join('');
+        };
+
+        window.showPage = function(pageId) {
+            document.querySelectorAll('.app-page').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            const targetPage = document.getElementById(pageId);
+            if(targetPage) targetPage.classList.remove('hidden');
+            
+            const tgtLink = document.getElementById(`menu-${pageId}`);
+            if(tgtLink) tgtLink.classList.add('active');
+        };
+    </script>
+</body>
+</html>
