@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nasiran-e Husain Accounting Cloud</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div id="login-layer" class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+<div class="card p-5 shadow-lg" style="width: 100%; max-width: 440px; border-top: 6px solid #0284c7; border-radius: 24px;">
+<div class="text-center mb-4">
+<div class="d-inline-block mb-3"><img src="logo-tr.png" alt="Logo" style="height: 85px; width: auto; object-fit: contain;"></div>
+<h3 class="fw-extrabold text-dark tracking-tight mb-1">Nasiran-e Husain</h3>
+<p class="text-muted small fw-medium mb-3">Accounting Cloud Workspace</p>
+<div id="db-status-badge" class="d-inline-block px-3 py-1 rounded-pill small fw-bold text-secondary bg-light">
+    <i class="fa-solid fa-circle-notch fa-spin me-1"></i> Checking Cloud Sync...
+</div>
+</div>
+<div class="mb-3">
+<label class="form-label"><i class="fa-solid fa-envelope me-2 text-muted"></i>Email Address</label>
+<input type="email" id="login-uid" class="form-control" placeholder="name@company.com">
+</div>
+<div class="mb-4">
+<label class="form-label"><i class="fa-solid fa-lock me-2 text-muted"></i>Password</label>
+<input type="password" id="login-pwd" class="form-control" placeholder="••••••••">
+</div>
+<button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none;">
+Sign In <i class="fa-solid fa-arrow-right ms-2"></i>
+</button>
+</div>
+</div>
+
+<div id="app-layer" class="container-fluid hidden">
+<div class="row">
+
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar p-4">
+<div class="d-flex align-items-center mb-4 border-bottom pb-3">
+<img src="logo-tr.png" alt="Logo" style="height: 36px; width: auto; margin-right: 12px; object-fit: contain;">
+<span class="fs-6 fw-bold text-white tracking-tight" style="line-height: 1.25;">Nasiran-e Husain<br><span class="text-info small fw-semibold" style="font-size: 0.75rem; color: #38bdf8 !important;">Accounting Cloud</span></span>
+</div>
+<div class="small px-2 text-uppercase fw-bold text-muted mb-3" style="font-size: 0.7rem; letter-spacing: 1.2px;">Workspace</div>
+<ul class="nav flex-column">
+<li class="nav-item admin-only"><a href="#" class="nav-link" id="menu-page1" onclick="showPage('page1')"><i class="fa-solid fa-users"></i> User Registry</a></li>
+<li class="nav-item admin-only"><a href="#" class="nav-link" id="menu-page2" onclick="showPage('page2')"><i class="fa-solid fa-tags"></i> Account Heads</a></li>
+<li class="nav-item"><a href="#" class="nav-link" id="menu-page3" onclick="showPage('page3')"><i class="fa-solid fa-pen-to-square"></i> Daily Entry</a></li>
+<li class="nav-item"><a href="#" class="nav-link" id="menu-page4" onclick="showPage('page4')"><i class="fa-solid fa-file-invoice-dollar"></i> Extract Reports</a></li>
+</ul>
+<div class="p-3" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.25);">
+<div class="mb-2 small text-muted text-truncate"><i class="fa-solid fa-circle-user me-1 text-success"></i> <span id="lbl-active-user" class="text-white fw-medium"></span></div>
+<button onclick="handleLogout()" class="btn btn-outline-danger btn-sm w-100 rounded-2 py-1.5 fw-semibold" style="font-size: 0.8rem;"><i class="fa-solid fa-power-off me-1"></i> Sign Out</button>
+</div>
+</nav>
+
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 py-4">
+
+<div id="page1" class="app-page hidden">
+<div class="page-header"><h2><i class="fa-solid fa-users-gear text-primary me-2"></i>User Management Console</h2></div>
+<div class="row g-4">
+<div class="col-md-4">
+<div class="card p-4 shadow-sm">
+<h5 class="fw-bold mb-3">Create Cloud Account</h5>
+<div class="mb-3"><label class="form-label">User Email</label><input type="email" id="user-uid" class="form-control" placeholder="staff@company.com"></div>
+<div class="mb-3"><label class="form-label">Password</label><input type="password" id="user-pwd" class="form-control" placeholder="Min 6 characters"></div>
+<div class="mb-3"><label class="form-label">Authority Level</label><select id="user-role" class="form-select"><option value="User">Simple User (Data Entry)</option><option value="Admin">Administrator (Full Rights)</option></select></div>
+<button onclick="saveUserAccount()" class="btn btn-primary w-100 py-2 mt-2"><i class="fa-solid fa-user-plus me-1"></i> Register Live User</button>
+</div>
+</div>
+<div class="col-md-8"><div class="table-container"><h5 class="fw-bold mb-3">Active System Access List</h5><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>User Email ID</th><th>Authority Status</th><th class="admin-only text-center" style="width: 100px;">Action</th></tr></thead><tbody id="tbl-users-body"></tbody></table></div></div></div>
+</div>
+</div>
+
+<div id="page2" class="app-page hidden">
+<div class="page-header"><h2><i class="fa-solid fa-folder-tree text-success me-2"></i>Define Account Heads</h2></div>
+<div class="row g-4">
+<div class="col-md-4">
+<div class="card p-4 shadow-sm">
+<h5 class="fw-bold mb-3">Add Ledger Category</h5>
+<div class="mb-3"><label class="form-label">Head Title Name</label><input type="text" id="head-name" class="form-control" placeholder="e.g. Office Rent, Consultancy"></div>
+<div class="mb-3"><label class="form-label">Classification Group</label><select id="head-type" class="form-select"><option value="Income">Income Head</option><option value="Expenditure">Expenditure Head</option></select></div>
+<button onclick="saveAccountHead()" class="btn btn-success w-100 py-2 mt-2"><i class="fa-solid fa-plus me-1"></i> Commit to Cloud</button>
+</div>
+</div>
+<div class="col-md-8"><div class="table-container"><h5 class="fw-bold mb-3">Configured Accounting Matrices</h5><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>Ledger Head Name</th><th>Accounting Class</th><th class="admin-only text-center" style="width: 100px;">Action</th></tr></thead><tbody id="tbl-heads-body"></tbody></table></div></div></div>
+</div>
+</div>
+
+<div id="page3" class="app-page hidden">
+<div class="page-header"><h2><i class="fa-solid fa-file-circle-plus text-info me-2"></i>Daily Transaction Entry</h2></div>
+<div class="card p-4 shadow-sm mx-auto mx-md-0" style="max-width: 650px;">
+<h5 class="fw-bold mb-4 text-secondary">New Transaction Voucher</h5>
+<div class="row g-3 mb-3">
+<div class="col-md-6"><label class="form-label"><i class="fa-solid fa-calendar-days me-1 text-muted"></i> Date of Entry</label><input type="date" id="entry-date" class="form-control"></div>
+<div class="col-md-6"><label class="form-label"><i class="fa-solid fa-sliders me-1 text-muted"></i> Entry Type</label><select id="entry-type" class="form-select" onchange="refreshDynamicHeadDropdown()"><option value="Income">🟢 Income</option><option value="Expenditure">🔴 Expenditure</option></select></div>
+</div>
+<div class="mb-3"><label class="form-label"><i class="fa-solid fa-layer-group me-1 text-muted"></i> Select Account Head</label><select id="entry-head-select" class="form-select"></select></div>
+<div class="mb-3"><label class="form-label"><i class="fa-solid fa-comment-dots me-1 text-muted"></i> Narration / Remarks</label><textarea id="entry-narration" class="form-control" rows="3" placeholder="Provide transaction detailed specifics..."></textarea></div>
+<div class="mb-4"><label class="form-label"><i class="fa-solid fa-money-bill-wave me-1 text-muted"></i> Amount Value</label><div class="input-group"><span class="input-group-text bg-light fw-bold text-secondary" style="border-radius: 12px 0 0 12px; border: 1px solid #e2e8f0;">PKR</span><input type="number" id="entry-amount" class="form-control form-control-lg text-primary fw-bold" step="0.01" placeholder="0.00" style="border-radius: 0 12px 12px 0;"></div></div>
+<button onclick="saveTransactionEntry()" class="btn btn-primary w-100 py-3 fw-bold shadow-sm" style="border-radius: 12px;"><i class="fa-solid fa-cloud-arrow-up me-1"></i> Post Transaction Voucher</button>
+</div>
+</div>
+
+<div id="page4" class="app-page hidden">
+<div class="page-header"><h2><i class="fa-solid fa-chart-pie text-warning me-2"></i>Financial Reports Studio</h2></div>
+<div class="card p-4 shadow-sm mb-4">
+<h5 class="fw-bold mb-3 text-secondary">Filter Ledger Criteria</h5>
+<div class="row g-3 align-items-end">
+<div class="col-md-3"><label class="form-label">From Date *</label><input type="date" id="rpt-from-date" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label">To Date *</label><input type="date" id="rpt-to-date" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label">Account Head (Optional)</label><select id="rpt-head-select" class="form-select"><option value="">-- View All Categories --</option></select></div>
+<div class="col-md-3 d-flex gap-2">
+<button onclick="generatePeriodicReport()" class="btn btn-primary text-white flex-grow-1 py-2.5 fw-bold" style="border-radius: 12px;"><i class="fa-solid fa-magnifying-glass me-1"></i> Extract</button>
+<button onclick="window.print()" class="btn btn-dark py-2.5 px-3" style="border-radius: 12px;" title="Print Ledger Statement"><i class="fa-solid fa-print"></i></button>
+</div>
+</div>
+</div>
+
+<div class="row g-3 mb-3 hidden" id="report-metrics-row">
+<div class="col-md-4"><div class="metric-card metric-income shadow-sm"><div><div class="small opacity-75">Total Extracted Income</div><h3 class="fw-bold mb-0" id="lbl-rpt-income">PKR 0.00</h3></div><i class="fa-solid fa-circle-arrow-up fa-2x opacity-50"></i></div></div>
+<div class="col-md-4"><div class="metric-card metric-expense shadow-sm"><div><div class="small opacity-75">Total Extracted Expenses</div><h3 class="fw-bold mb-0" id="lbl-rpt-expense">PKR 0.00</h3></div><i class="fa-solid fa-circle-arrow-down fa-2x opacity-50"></i></div></div>
+<div class="col-md-4"><div id="card-rpt-balance" class="metric-card shadow-sm" style="background: #475569;"><div><div class="small opacity-75">Net Operating Balance</div><h3 class="fw-bold mb-0" id="lbl-rpt-balance">PKR 0.00</h3></div><i id="icon-rpt-balance" class="fa-solid fa-scale-balanced fa-2x opacity-50"></i></div></div>
+</div>
+
+<div id="lbl-words-row" class="px-2 mb-4 text-secondary small fw-bold text-uppercase hidden" style="letter-spacing: 0.5px;"><i class="fa-solid fa-quote-left text-muted me-1"></i> Balance in Words: <span id="lbl-rpt-words" class="text-dark">Zero Rupees Only</span></div>
+
+<div class="table-container hidden" id="report-results-container">
+<h5 class="fw-bold mb-3 text-dark">Extracted Statement Ledger</h5>
+<div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-dark"><tr><th>Date</th><th>Type</th><th>Ledger Head</th><th>Narration/Description</th><th class="text-end">Amount</th><th class="admin-only text-center">Action</th></tr></thead><tbody id="tbl-reports-body"></tbody></table></div>
+<div class="print-signature-block"><div class="sig-line">Prepared By (Staff)</div><div class="sig-line">Audited By</div><div class="sig-line">Authorized Administrator</div></div>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+
+</body>
+</html>

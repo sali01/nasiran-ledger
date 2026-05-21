@@ -1,0 +1,158 @@
+/* ==========================================================================
+   💎 NASIRAN-E HUSAIN CLOUD WORKSPACE - PREMIUM UI STYLING SPECIFICATION
+   ========================================================================== */
+
+body { 
+    background-color: #f8fafc; 
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; 
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+/* 🌌 PREMIUM SIDEBAR NAVIGATION COMPONENT */
+.sidebar { 
+    min-height: 100vh; 
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); 
+    color: #f8fafc; 
+    position: relative; 
+    box-shadow: 4px 0 20px rgba(15, 23, 42, 0.15); 
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link { 
+    color: #94a3b8; 
+    border-radius: 10px; 
+    margin-bottom: 8px; 
+    padding: 12px 16px; 
+    font-weight: 600; 
+    font-size: 0.9rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+    text-decoration: none; 
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .nav-link i { 
+    margin-right: 12px; 
+    width: 20px; 
+    text-align: center; 
+    font-size: 1.1rem; 
+}
+
+.sidebar .nav-link:hover { 
+    color: #f8fafc; 
+    background-color: rgba(255, 255, 255, 0.06); 
+    transform: translateX(4px); 
+}
+
+.sidebar .nav-link.active { 
+    color: #fff; 
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); 
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); 
+}
+
+/* 🎨 MODERN CONTAINERS & FORM OVERRIDES */
+.card { 
+    border: none; 
+    border-radius: 20px; 
+    box-shadow: 0 4px 12px -1px rgba(0,0,0,0.03), 0 2px 6px -1px rgba(0,0,0,0.02); 
+    background: #ffffff; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -3px rgba(0,0,0,0.06), 0 4px 10px -2px rgba(0,0,0,0.04);
+}
+
+.form-label { 
+    font-weight: 700; 
+    color: #475569; 
+    font-size: 0.85rem; 
+    text-transform: uppercase; 
+    margin-bottom: 8px; 
+    letter-spacing: 0.5px; 
+}
+
+.form-control, .form-select { 
+    border-radius: 12px; 
+    border: 1px solid #e2e8f0; 
+    padding: 12px 16px; 
+    font-weight: 500; 
+    transition: all 0.2s ease; 
+    background-color: #f8fafc; 
+}
+
+.form-control:focus, .form-select:focus { 
+    background-color: #fff; 
+    border-color: #0284c7; 
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12); 
+}
+
+.table-container { 
+    background: white; 
+    border-radius: 20px; 
+    padding: 28px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02); 
+    border: 1px solid #f1f5f9; 
+}
+
+.page-header { 
+    border-bottom: 1px solid #e2e8f0; 
+    padding-bottom: 20px; 
+    margin-bottom: 28px; 
+}
+
+/* 📊 FINANCIAL PERFORMANCE SUMMARY METRIC CARDS */
+.metric-card { 
+    padding: 24px; 
+    border-radius: 20px; 
+    color: white; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    transition: all 0.3s ease; 
+}
+
+.metric-income { 
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%); 
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25); 
+}
+
+.metric-expense { 
+    background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); 
+    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.25); 
+}
+
+/* ✍️ AUDIT TRACKING METADATA BADGES */
+.audit-badge { 
+    font-size: 0.75rem; 
+    color: #64748b; 
+    background-color: #f1f5f9; 
+    padding: 2px 8px; 
+    border-radius: 6px; 
+    display: inline-block; 
+    margin-top: 4px; 
+    font-weight: 500; 
+}
+
+/* 📋 PRINT OVERRIDE DOCUMENTATION RENDERING ENGINE */
+@media print {
+    body { background: white !important; color: black !important; font-size: 12px; }
+    #sidebarMenu, #login-layer, .btn, .page-header, .card:not(.printable-card), .admin-only, .input-group-text { display: none !important; }
+    #app-layer, main, .table-container, #report-results-container { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; position: absolute; left: 0; top: 0; }
+    .table-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
+    .table { width: 100% !important; border-collapse: collapse !important; }
+    .table th { background-color: #1e293b !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .table td, .table th { border: 1px solid #cbd5e1 !important; padding: 8px !important; }
+    .print-signature-block { display: flex !important; justify-content: space-between; margin-top: 60px; page-break-inside: avoid; }
+    .sig-line { border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 11px; }
+    #report-metrics-row { display: flex !important; flex-direction: row !important; gap: 15px !important; margin-bottom: 30px !important; }
+    .metric-card { border: 1px solid #cbd5e1 !important; color: black !important; background: none !important; box-shadow: none !important; padding: 12px !important; width: 33% !important; }
+    .metric-card i { display: none !important; }
+    #lbl-words-row { display: block !important; margin-bottom: 20px !important; font-style: italic; font-weight: bold; }
+}
+
+.print-signature-block { display: none; }
