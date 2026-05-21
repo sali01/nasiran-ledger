@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,6 +162,7 @@ Nasiran-e Husain<br>
 <option value="Expenditure">Expenditure Head</option>
 </select>
 </div>
+<div class="text-danger small mb-2 hidden" id="head-error"></div>
 <button onclick="saveAccountHead()" class="btn btn-success w-100 py-2 mt-2"><i class="fa-solid fa-plus me-1"></i> Commit to Cloud</button>
 </div>
 </div>
@@ -277,28 +279,30 @@ Nasiran-e Husain<br>
 </div>
 </div>
 
+// ================= 3. SUPABASE MODULE COUPLING LAYER ================= -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://nyhitutrfczvaolaaszx.supabase.co";// Ensure your correct project domain URL is pasted here
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55aGl0dXRyZmN6dmFvbGFhc3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzI5NjQsImV4cCI6MjA5NDkwODk2NH0.hU41TmqWCLGJoaTI0BDYLQxP72xvzn6x4buorfRT8zw"; // Paste your updated public anon key string here
+const SUPABASE_URL = "https://nyhitutrfczvaolaaszx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55aGl0dXRyZmN6dmFvbGFhc3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzI5NjQsImV4cCI6MjA5NDkwODk2NH0.hU41TmqWCLGJoaTI0BDYLQxP72xvzn6x4buorfRT8zw";
 
-let supabase;
+let dbInstance = null;
+
 try {
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // This explicit window call prevents any naming conflicts with the script tag
+    dbInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     testSupabaseConnection();
 } catch(error) {
+    console.error("Initialization issue:", error);
     updateConnectionBadge(false);
 }
 
-// Visual confirmation check engine on the login screen
 async function testSupabaseConnection() {
     try {
-        // A simple query to wake up the client and check if keys connect perfectly
-        const { error } = await supabase.from('account_heads').select('id').limit(1);
+        const { error } = await dbInstance.from('account_heads').select('id').limit(1);
         if (error && error.code !== 'PGRST116') throw error;
         updateConnectionBadge(true);
     } catch(err) {
-        console.error("Connection tracking error: ", err);
+        console.error("Connection failed:", err);
         updateConnectionBadge(false);
     }
 }
@@ -325,31 +329,30 @@ window.handleLogin = async function() {
     const password = document.getElementById('login-pwd').value;
     if(!email || !password) return alert("Please clarify all credential blocks.");
    
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await dbInstance.auth.signInWithPassword({ email, password });
     if (error) alert("Access Failure: " + error.message);
 };
 
 window.handleLogout = async function() {
-    await supabase.auth.signOut();
+    await dbInstance.auth.signOut();
 };
 
 // Monitor Authentication Sessions State Changes
-supabase.auth.onAuthStateChange(async (event, session) => {
+dbInstance.auth.onAuthStateChange(async (event, session) => {
     if (session) {
         currentUserSession = session.user;
         globalUserRole = "User";
        
         try {
-            const { data, error } = await supabase
+            const { data } = await dbInstance
                 .from('users')
                 .select('user_type')
                 .eq('id', currentUserSession.id)
                 .single();
                
             if (data) globalUserRole = data.user_type;
-        } catch (e) { console.log("Role fetch delayed.", e); }
+        } catch (e) { console.log("Role fetch status: standalone mode"); }
 
-        // Master Admin Email Security Pass Override
         if (currentUserSession.email === "sshujaat.ali@hotmail.com") globalUserRole = "Admin";
         bootDashboard(currentUserSession);
     } else {
@@ -379,8 +382,7 @@ function teardownDashboard() {
 
 // --- DATA READS & SYNCHRONIZATION ---
 async function fetchAndListenToCloudData() {
-    // Read Users Access Configuration List
-    const { data: usersData } = await supabase.from('users').select('*');
+    const { data: usersData } = await dbInstance.from('users').select('*');
     if (usersData) {
         const tbody = document.getElementById('tbl-users-body');
         if(tbody) {
@@ -390,8 +392,7 @@ async function fetchAndListenToCloudData() {
         }
     }
 
-    // Read and cache Account Matrix Categories
-    const { data: headsData } = await supabase.from('account_heads').select('*');
+    const { data: headsData } = await dbInstance.from('account_heads').select('*');
     if (headsData) {
         cachedHeads = headsData.map(h => ({ headName: h.head_name, headType: h.head_type }));
        
@@ -405,7 +406,7 @@ async function fetchAndListenToCloudData() {
         const rptSelect = document.getElementById('rpt-head-select');
         if(rptSelect) {
             rptSelect.innerHTML = '<option value="">-- View All Categories --</option>' +
-                cachedHeads.map(h => `<option value="${h.headName}">${h.headName} (${h.headType})</option>`).join('');
+                cachedHeads.map(h => `<option value="${h.headName}">${h.headName}</option>`).join('');
         }
         refreshDynamicHeadDropdown();
     }
@@ -418,15 +419,15 @@ window.saveUserAccount = async function() {
     const role = document.getElementById('user-role').value;
     if(!email || pwd.length < 6) return alert("Valid parameters are required.");
    
-    const { data, error } = await supabase.auth.signUp({ email: email, password: pwd });
+    const { data, error } = await dbInstance.auth.signUp({ email: email, password: pwd });
     if (error) return alert("Registration issue: " + error.message);
    
     if (data && data.user) {
-        const { error: dbError } = await supabase
+        const { error: dbError } = await dbInstance
             .from('users')
             .insert([{ id: data.user.id, email: email, user_type: role }]);
            
-        if (dbError) console.error("Profile row sync error: ", dbError.message);
+        if (dbError) console.error("Profile sync details:", dbError.message);
         alert("Account provisioned successfully!");
         document.getElementById('user-uid').value = '';
         document.getElementById('user-pwd').value = '';
@@ -437,13 +438,21 @@ window.saveUserAccount = async function() {
 window.saveAccountHead = async function() {
     const name = document.getElementById('head-name').value.trim();
     const type = document.getElementById('head-type').value;
+    const errDiv = document.getElementById('head-error');
+    if(errDiv) errDiv.classList.add('hidden');
     if(!name) return alert("Title criteria empty.");
    
-    const { error } = await supabase
+    const { error } = await dbInstance
         .from('account_heads')
         .insert([{ head_name: name, head_type: type }]);
        
-    if(error) return alert("Error writing head: " + error.message);
+    if(error) {
+        if(errDiv) {
+            errDiv.innerText = "Error tracking context: " + error.message;
+            errDiv.classList.remove('hidden');
+        }
+        return alert("Error writing head configuration: " + error.message);
+    }
    
     document.getElementById('head-name').value = '';
     fetchAndListenToCloudData();
@@ -458,7 +467,7 @@ window.saveTransactionEntry = async function() {
 
     if(!date || !head || isNaN(amount)) return alert("Please verify all data inputs are complete.");
 
-    const { error } = await supabase
+    const { error } = await dbInstance
         .from('transactions')
         .insert([{
             date: date,
@@ -484,7 +493,7 @@ window.generatePeriodicReport = async function() {
 
     if(!fromDate || !toDate) return alert("From Date and To Date filters are strictly mandatory.");
 
-    let queryBuilder = supabase
+    let queryBuilder = dbInstance
         .from('transactions')
         .select('*')
         .gte('date', fromDate)
