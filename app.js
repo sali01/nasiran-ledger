@@ -168,14 +168,7 @@ window.saveAccountHead = async function() {
 };
 
 /* ==========================================================================
-   ⚙️ NASIRAN-E HUSAIN CLOUD PLATFORM - CORE OPERATIONS ENGINE (PHASE 1 PART B)
-   ========================================================================== */
-
-// Keep all your top global variables intact...
-// (cachedHeads, seedAutomaticSystemDates, etc.)
-
-/* ==========================================================================
-   ⚙️ TRANSACTIONS ENTRY & PRINT ENGINE - PHASE 1 PART B (REFACTORED)
+   ⚙============= TRANSACTION POSTING SYSTEMS ==============================
    ========================================================================== */
 window.saveTransactionEntry = async function() {
     const entryDate = document.getElementById('entry-date').value;
@@ -184,7 +177,6 @@ window.saveTransactionEntry = async function() {
     const narration = document.getElementById('entry-narration').value;
     const amountVal = document.getElementById('entry-amount').value;
     
-    // ✨ ROBUST DONOR DATA EXTRACTION FALLBACK ENGINE
     let donorId = null;
     let donorName = "General / Anonymous";
     let donorMobile = "";
@@ -195,16 +187,13 @@ window.saveTransactionEntry = async function() {
             donorId = donorSelect.value;
             const selectedOption = donorSelect.options[donorSelect.selectedIndex];
             
-            // Priority 1: Read from standard data-attributes
             let rawName = selectedOption.getAttribute('data-name');
             donorMobile = selectedOption.getAttribute('data-mobile') || "";
 
-            // Priority 2 Fallback: If attributes are empty due to lag, parse text string "Name (Mobile)"
             if (!rawName) {
                 const optionText = selectedOption.text;
                 if (optionText.includes('(')) {
                     rawName = optionText.split('(')[0].trim();
-                    // Extract mobile safely from inside parenthesis
                     if (!donorMobile) {
                         const match = optionText.match(/\(([^)]+)\)/);
                         if (match) donorMobile = match[1].trim();
@@ -217,7 +206,6 @@ window.saveTransactionEntry = async function() {
         }
     }
 
-    // 🛑 Granular Ledger Validation
     if (!entryDate || !headName || !amountVal || parseFloat(amountVal) <= 0) {
         alert("Please provide a valid voucher date, select an operational head, and specify an amount greater than zero.");
         return;
@@ -226,13 +214,12 @@ window.saveTransactionEntry = async function() {
     const transactionAmount = parseFloat(amountVal);
 
     try {
-        // 1. Commit Payload to Database Schema via initialized window.dbInstance
         const { data, error } = await window.dbInstance
             .from('transactions')
             .insert([{
                 date: entryDate,
                 type: entryType,
-                head_name: headName, // Adjusted key to match verified schema cache
+                head_name: headName,
                 narration: narration,
                 amount: transactionAmount,
                 donor_id: donorId,
@@ -242,32 +229,21 @@ window.saveTransactionEntry = async function() {
 
         if (error) throw error;
 
-        // Generate or grab reference Receipt Voucher Number
         const voucherId = (data && data[0]) ? data[0].id : Math.floor(100000 + Math.random() * 900000);
-
         alert(`🎉 Voucher successfully posted to Secure Cloud! [ID: NH-${String(voucherId).padStart(6, '0')}]`);
 
-        // 2. ⚡ TRIGGER SUBSYSTEM CORE EXTENSIONS
-        
-        // Extension A: Generate 58mm Thermal Print Layout Data Matrix
         const thermalText = compileThermalReceiptString(voucherId, entryDate, entryType, headName, donorName, narration, transactionAmount);
-        console.log("=== ESC/POS 58mm Thermal Output Stream ===");
-        console.log(thermalText);
         
-        // Handshake directly with hardware if Android web wrapper shell is active
         if (window.AndroidBluetoothPrinter) {
             window.AndroidBluetoothPrinter.printRawText(thermalText);
         } else {
-            // Native fallback for desktop browser viewports
             triggerBrowserPrintFallback(thermalText);
         }
 
-        // Extension B: Automate WhatsApp Notification Route
         if (entryType === 'Income' && donorMobile) {
             triggerWhatsAppNotification(voucherId, donorName, donorMobile, headName, transactionAmount, entryDate);
         }
 
-        // 3. Reset Workspace UI Form Layout Inputs
         document.getElementById('entry-narration').value = '';
         document.getElementById('entry-amount').value = '';
         if (entryType === 'Income') {
@@ -280,13 +256,10 @@ window.saveTransactionEntry = async function() {
     }
 };
 
-/* ==========================================================================
-   📟 EXTENSION A: 58mm BLUETOOTH THERMAL ESC/POS FORMATTING ENGINE
-   ========================================================================== */
 function compileThermalReceiptString(vId, date, type, head, donor, narration, amount) {
     const d = new Date(date);
     const formattedDate = `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
-    const separator = "--------------------------------"; // Exactly 32 chars wide (Monospace 58mm standard grid)
+    const separator = "--------------------------------";
     
     let text = "";
     text += "       NASIRAN-E HUSAIN        \n";
@@ -302,7 +275,6 @@ function compileThermalReceiptString(vId, date, type, head, donor, narration, am
     text += `Description:\n ${narration || 'N/A'}\n`;
     text += separator + "\n";
     
-    // Force clean right-alignment calculation for financial calculations
     const totalLabel = "TOTAL AMOUNT:";
     const priceStr = `PKR ${amount.toLocaleString('en-PK', { minimumFractionDigits: 2 })}`;
     const spacesNeeded = 32 - (totalLabel.length + priceStr.length);
@@ -312,7 +284,7 @@ function compileThermalReceiptString(vId, date, type, head, donor, narration, am
     text += separator + "\n";
     text += "   Thank you for your trust.   \n";
     text += "   System Generated Receipt    \n";
-    text += "\n\n\n"; // Trailing paper feed spaces for crisp tear away
+    text += "\n\n\n";
     
     return text;
 }
@@ -333,21 +305,16 @@ function triggerBrowserPrintFallback(rawText) {
     }
 }
 
-/* ==========================================================================
-   💬 EXTENSION B: AUTOMATED WHATSAPP TEXT GENERATION ENGINE
-   ========================================================================== */
 function triggerWhatsAppNotification(vId, donorName, mobile, headName, amount, date) {
-    // Sanitize mobile layout parameters (strip symbols/dashes)
     let cleanMobile = mobile.replace(/[^0-9]/g, '');
     if (cleanMobile.startsWith('03')) {
-        cleanMobile = '92' + cleanMobile.substring(1); // Format local Pakistani operators to global country codes
+        cleanMobile = '92' + cleanMobile.substring(1);
     }
     
     const d = new Date(date);
     const formattedDate = `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
     const formattedAmount = amount.toLocaleString('en-PK', { minimumFractionDigits: 0 });
 
-    // Premium structured confirmation copy block
     const messageTemplate = 
 `*NASIRAN-E HUSAIN TRUST*
 _Acknowledgement of Contribution_
@@ -367,30 +334,8 @@ _This is an automated system-generated cloud confirmation._`;
 
     const encodedMessage = encodeURIComponent(messageTemplate);
     const whatsappUrl = `https://wa.me/${cleanMobile}?text=${encodedMessage}`;
-    
     window.open(whatsappUrl, '_blank');
 }
-// 👥 DONOR DIRECTORY SUBSYSTEM PROTOCOLS
-window.switchRegistryTab = function(activeTab) {
-    const staffSec = document.getElementById('registry-staff-sec');
-    const donorSec = document.getElementById('registry-donors-sec');
-    const btnStaff = document.getElementById('btn-tab-staff');
-    const btnDonors = document.getElementById('btn-tab-donors');
-
-    if (!staffSec || !donorSec || !btnStaff || !btnDonors) return;
-
-    if (activeTab === 'staff') {
-        staffSec.classList.remove('hidden');
-        donorSec.classList.add('hidden');
-        btnStaff.className = "btn btn-primary px-4 fw-bold";
-        btnDonors.className = "btn btn-outline-primary px-4 fw-bold";
-    } else {
-        donorSec.classList.remove('hidden');
-        staffSec.classList.add('hidden');
-        btnDonors.className = "btn btn-success px-4 fw-bold";
-        btnStaff.className = "btn btn-outline-primary px-4 fw-bold";
-    }
-};
 
 window.saveDonorProfile = async function() {
     const name = document.getElementById('donor-name').value.trim();
@@ -446,26 +391,6 @@ function syncEntryFormDonorDropdown() {
         selector.innerHTML = '';
     }
 }
-
-function showPage(pageId) {
-    // Hide all pages
-    document.querySelectorAll('.app-page').forEach(page => {
-        page.classList.add('hidden');
-    });
-    // Remove active styling from all nav links
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-    });
-
-    // Show selected page
-    const activePage = document.getElementById(pageId);
-    if (activePage) activePage.classList.remove('hidden');
-
-    // Accentuate the active sidebar option
-    const activeMenu = document.getElementById('menu-' + pageId);
-    if (activeMenu) activeMenu.classList.add('active');
-}
-
 
 // 🛑 DROP/DELETE RECORD CRITERIA OVERRIDES
 window.deleteTransactionVoucher = async function(transactionId) {
@@ -634,6 +559,7 @@ window.refreshDynamicHeadDropdown = function() {
 };
 
 window.showPage = function(pageId) {
+    // Hide all pages safely
     document.querySelectorAll('.app-page').forEach(p => p.classList.add('hidden'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
