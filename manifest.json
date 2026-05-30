@@ -1,0 +1,21 @@
+{
+  "short_name": "Nasiran Cloud",
+  "name": "Nasiran-e Husain Accounting Cloud",
+  "icons": [
+    {
+      "src": "logo-tr.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo-tr.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
+}
