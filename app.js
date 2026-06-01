@@ -156,7 +156,7 @@ window.saveAccountHead = async function() {
     const name = document.getElementById('head-name').value.trim();
     const type = document.getElementById('head-type').value;
     if(!name) return alert("Title criteria empty.");
-    
+
     const { error } = await dbInstance
         .from('account_heads')
         .insert([{ head_name: name, head_type: type }]);
@@ -168,7 +168,14 @@ window.saveAccountHead = async function() {
 };
 
 /* ==========================================================================
-   ⚙============= TRANSACTION POSTING SYSTEMS ==============================
+   ⚙️ NASIRAN-E HUSAIN CLOUD PLATFORM - CORE OPERATIONS ENGINE (PHASE 1 PART B)
+   ========================================================================== */
+
+// Keep all your top global variables intact...
+// (cachedHeads, seedAutomaticSystemDates, etc.)
+
+/* ==========================================================================
+   ⚙️ TRANSACTIONS ENTRY & PRINT ENGINE - PHASE 1 PART B (REFACTORED)
    ========================================================================== */
 window.saveTransactionEntry = async function() {
     const entryDate = document.getElementById('entry-date').value;
@@ -177,6 +184,7 @@ window.saveTransactionEntry = async function() {
     const narration = document.getElementById('entry-narration').value;
     const amountVal = document.getElementById('entry-amount').value;
     
+    // ✨ ROBUST DONOR DATA EXTRACTION FALLBACK ENGINE
     let donorId = null;
     let donorName = "General / Anonymous";
     let donorMobile = "";
@@ -187,13 +195,16 @@ window.saveTransactionEntry = async function() {
             donorId = donorSelect.value;
             const selectedOption = donorSelect.options[donorSelect.selectedIndex];
             
+            // Priority 1: Read from standard data-attributes
             let rawName = selectedOption.getAttribute('data-name');
             donorMobile = selectedOption.getAttribute('data-mobile') || "";
 
+            // Priority 2 Fallback: If attributes are empty due to lag, parse text string "Name (Mobile)"
             if (!rawName) {
                 const optionText = selectedOption.text;
                 if (optionText.includes('(')) {
                     rawName = optionText.split('(')[0].trim();
+                    // Extract mobile safely from inside parenthesis
                     if (!donorMobile) {
                         const match = optionText.match(/\(([^)]+)\)/);
                         if (match) donorMobile = match[1].trim();
@@ -206,6 +217,7 @@ window.saveTransactionEntry = async function() {
         }
     }
 
+    // 🛑 Granular Ledger Validation
     if (!entryDate || !headName || !amountVal || parseFloat(amountVal) <= 0) {
         alert("Please provide a valid voucher date, select an operational head, and specify an amount greater than zero.");
         return;
@@ -214,12 +226,13 @@ window.saveTransactionEntry = async function() {
     const transactionAmount = parseFloat(amountVal);
 
     try {
+        // 1. Commit Payload to Database Schema via initialized window.dbInstance
         const { data, error } = await window.dbInstance
             .from('transactions')
             .insert([{
                 date: entryDate,
                 type: entryType,
-                head_name: headName,
+                head_name: headName, // Adjusted key to match verified schema cache
                 narration: narration,
                 amount: transactionAmount,
                 donor_id: donorId,
@@ -229,21 +242,32 @@ window.saveTransactionEntry = async function() {
 
         if (error) throw error;
 
+        // Generate or grab reference Receipt Voucher Number
         const voucherId = (data && data[0]) ? data[0].id : Math.floor(100000 + Math.random() * 900000);
+
         alert(`🎉 Voucher successfully posted to Secure Cloud! [ID: NH-${String(voucherId).padStart(6, '0')}]`);
 
-        const thermalText = compileThermalReceiptString(voucherId, entryDate, entryType, headName, donorName, narration, transactionAmount);
+        // 2. ⚡ TRIGGER SUBSYSTEM CORE EXTENSIONS
         
+        // Extension A: Generate 58mm Thermal Print Layout Data Matrix
+        const thermalText = compileThermalReceiptString(voucherId, entryDate, entryType, headName, donorName, narration, transactionAmount);
+        console.log("=== ESC/POS 58mm Thermal Output Stream ===");
+        console.log(thermalText);
+        
+        // Handshake directly with hardware if Android web wrapper shell is active
         if (window.AndroidBluetoothPrinter) {
             window.AndroidBluetoothPrinter.printRawText(thermalText);
         } else {
+            // Native fallback for desktop browser viewports
             triggerBrowserPrintFallback(thermalText);
         }
 
+        // Extension B: Automate WhatsApp Notification Route
         if (entryType === 'Income' && donorMobile) {
             triggerWhatsAppNotification(voucherId, donorName, donorMobile, headName, transactionAmount, entryDate);
         }
 
+        // 3. Reset Workspace UI Form Layout Inputs
         document.getElementById('entry-narration').value = '';
         document.getElementById('entry-amount').value = '';
         if (entryType === 'Income') {
@@ -256,10 +280,13 @@ window.saveTransactionEntry = async function() {
     }
 };
 
+/* ==========================================================================
+   📟 EXTENSION A: 58mm BLUETOOTH THERMAL ESC/POS FORMATTING ENGINE
+   ========================================================================== */
 function compileThermalReceiptString(vId, date, type, head, donor, narration, amount) {
     const d = new Date(date);
     const formattedDate = `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
-    const separator = "--------------------------------";
+    const separator = "--------------------------------"; // Exactly 32 chars wide (Monospace 58mm standard grid)
     
     let text = "";
     text += "       NASIRAN-E HUSAIN        \n";
@@ -275,6 +302,7 @@ function compileThermalReceiptString(vId, date, type, head, donor, narration, am
     text += `Description:\n ${narration || 'N/A'}\n`;
     text += separator + "\n";
     
+    // Force clean right-alignment calculation for financial calculations
     const totalLabel = "TOTAL AMOUNT:";
     const priceStr = `PKR ${amount.toLocaleString('en-PK', { minimumFractionDigits: 2 })}`;
     const spacesNeeded = 32 - (totalLabel.length + priceStr.length);
@@ -284,7 +312,7 @@ function compileThermalReceiptString(vId, date, type, head, donor, narration, am
     text += separator + "\n";
     text += "   Thank you for your trust.   \n";
     text += "   System Generated Receipt    \n";
-    text += "\n\n\n";
+    text += "\n\n\n"; // Trailing paper feed spaces for crisp tear away
     
     return text;
 }
@@ -305,16 +333,21 @@ function triggerBrowserPrintFallback(rawText) {
     }
 }
 
+/* ==========================================================================
+   💬 EXTENSION B: AUTOMATED WHATSAPP TEXT GENERATION ENGINE
+   ========================================================================== */
 function triggerWhatsAppNotification(vId, donorName, mobile, headName, amount, date) {
+    // Sanitize mobile layout parameters (strip symbols/dashes)
     let cleanMobile = mobile.replace(/[^0-9]/g, '');
     if (cleanMobile.startsWith('03')) {
-        cleanMobile = '92' + cleanMobile.substring(1);
+        cleanMobile = '92' + cleanMobile.substring(1); // Format local Pakistani operators to global country codes
     }
     
     const d = new Date(date);
     const formattedDate = `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
     const formattedAmount = amount.toLocaleString('en-PK', { minimumFractionDigits: 0 });
 
+    // Premium structured confirmation copy block
     const messageTemplate = 
 `*NASIRAN-E HUSAIN TRUST*
 _Acknowledgement of Contribution_
@@ -334,8 +367,30 @@ _This is an automated system-generated cloud confirmation._`;
 
     const encodedMessage = encodeURIComponent(messageTemplate);
     const whatsappUrl = `https://wa.me/${cleanMobile}?text=${encodedMessage}`;
+    
     window.open(whatsappUrl, '_blank');
 }
+// 👥 DONOR DIRECTORY SUBSYSTEM PROTOCOLS
+window.switchRegistryTab = function(activeTab) {
+    const staffSec = document.getElementById('registry-staff-sec');
+    const donorSec = document.getElementById('registry-donors-sec');
+    const btnStaff = document.getElementById('btn-tab-staff');
+    const btnDonors = document.getElementById('btn-tab-donors');
+
+    if (!staffSec || !donorSec || !btnStaff || !btnDonors) return;
+
+    if (activeTab === 'staff') {
+        staffSec.classList.remove('hidden');
+        donorSec.classList.add('hidden');
+        btnStaff.className = "btn btn-primary px-4 fw-bold";
+        btnDonors.className = "btn btn-outline-primary px-4 fw-bold";
+    } else {
+        donorSec.classList.remove('hidden');
+        staffSec.classList.add('hidden');
+        btnDonors.className = "btn btn-success px-4 fw-bold";
+        btnStaff.className = "btn btn-outline-primary px-4 fw-bold";
+    }
+};
 
 window.saveDonorProfile = async function() {
     const name = document.getElementById('donor-name').value.trim();
@@ -391,6 +446,26 @@ function syncEntryFormDonorDropdown() {
         selector.innerHTML = '';
     }
 }
+
+function showPage(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.app-page').forEach(page => {
+        page.classList.add('hidden');
+    });
+    // Remove active styling from all nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+
+    // Show selected page
+    const activePage = document.getElementById(pageId);
+    if (activePage) activePage.classList.remove('hidden');
+
+    // Accentuate the active sidebar option
+    const activeMenu = document.getElementById('menu-' + pageId);
+    if (activeMenu) activeMenu.classList.add('active');
+}
+
 
 // 🛑 DROP/DELETE RECORD CRITERIA OVERRIDES
 window.deleteTransactionVoucher = async function(transactionId) {
@@ -472,6 +547,7 @@ function convertAmountToWords(amount) {
 }
 
 // 📊 HIGH-PERFORMANCE LEDGER MATRIX COMPILER
+// 📊 HIGH-PERFORMANCE LEDGER MATRIX COMPILER (PATCHED)
 window.generatePeriodicReport = async function() {
     const fromDate = document.getElementById('rpt-from-date').value;
     const toDate = document.getElementById('rpt-to-date').value;
@@ -482,7 +558,8 @@ window.generatePeriodicReport = async function() {
     const tbody = document.getElementById('tbl-reports-body');
     tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>Optimizing Matrix...</td></tr>`;
 
-    let queryBuilder = dbInstance
+    // ✨ FIX: Explicitly reference window.dbInstance to prevent undefined scope drops
+    let queryBuilder = window.dbInstance
         .from('transactions')
         .select('id, date, type, head_name, narration, amount, entered_by')
         .gte('date', fromDate)
@@ -547,25 +624,305 @@ window.generatePeriodicReport = async function() {
         else el.classList.add('hidden');
     });
 };
-
 window.refreshDynamicHeadDropdown = function() {
     const currentSelectedType = document.getElementById('entry-type').value;
     const dropDown = document.getElementById('entry-head-select');
     if(!dropDown) return;
-    const filtered = cachedHeads.filter(h => h.headType === currentSelectedType);
-    dropDown.innerHTML = filtered.map(h => `<option value="${h.headName}">${h.headName}</option>`).join('');
     
-    syncEntryFormDonorDropdown();
+    // Perform a case-insensitive check to ensure "Expense" matches "Expense" or "expense"
+    const filtered = cachedHeads.filter(h => 
+        h.headType && h.headType.trim().toLowerCase() === currentSelectedType.trim().toLowerCase()
+    );
+    
+    if (filtered.length === 0) {
+        dropDown.innerHTML = '<option value="">-- No Account Heads Configured --</option>';
+    } else {
+        dropDown.innerHTML = filtered.map(h => `<option value="${h.headName}">${h.headName}</option>`).join('');
+    }
+    
+    // Keep donor matrix display synced
+    if (typeof syncEntryFormDonorDropdown === "function") {
+        syncEntryFormDonorDropdown();
+    }
 };
 
+// ==========================================================================
+// SPA APPLICATION RUNTIME UNIFIED PAGE ROUTER
+// ==========================================================================
 window.showPage = function(pageId) {
-    // Hide all pages safely
-    document.querySelectorAll('.app-page').forEach(p => p.classList.add('hidden'));
+    // 1. Instantly hide every legacy page container
+    document.querySelectorAll('.app-page').forEach(p => {
+        p.classList.add('hidden');
+        p.classList.add('d-none'); // Force double-lock hiding state
+    });
+
+    // 2. Clear highlighting flags from all global nav elements
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
+    // 3. Locate and target target node page
     const targetPage = document.getElementById(pageId);
-    if(targetPage) targetPage.classList.remove('hidden');
+    if(targetPage) {
+        targetPage.classList.remove('hidden');
+        targetPage.classList.remove('d-none');
+    }
 
+    // 4. Update sidebar menu navigation highlights cleanly
     const tgtLink = document.getElementById(`menu-${pageId}`);
-    if(tgtLink) tgtLink.classList.add('active');
+    if(tgtLink) {
+        tgtLink.classList.add('active');
+    } else {
+        // Fallback checks for modern custom link variants
+        document.querySelectorAll('.navigation-menu .nav-link').forEach(link => {
+            if(link.getAttribute('onclick') && link.getAttribute('onclick').includes(pageId)) {
+                link.classList.add('active');
+            }
+        });
+    }
 };
+
+document.getElementById('donor-cnic').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+    let formattedValue = "";
+
+    if (value.length > 0) {
+        // First part: 5 digits
+        formattedValue += value.substring(0, 5);
+        if (value.length > 5) {
+            // Second part: 7 digits
+            formattedValue += "-" + value.substring(5, 12);
+            if (value.length > 12) {
+                // Third part: 1 digit
+                formattedValue += "-" + value.substring(12, 13);
+            }
+        }
+    }
+    e.target.value = formattedValue;
+});
+
+// ==========================================
+// PHASE 4: BOUNDLESS OFFLINE-FIRST ARCHITECTURE
+// ==========================================
+
+// Intercept Engine wrapper to protect database insertions
+async function safelyExecuteTransaction(transactionPayload) {
+    // Check if network channel is active
+    if (!navigator.onLine) {
+        cacheOfflineTransaction(transactionPayload);
+        return { success: false, offline: true };
+    }
+
+    try {
+        const { data, error } = await window.dbInstance
+            .from('transactions')
+            .insert([transactionPayload])
+            .select();
+
+        if (error) throw error;
+        return { success: true, offline: false, data };
+    } catch (err) {
+        console.warn("Target write failed due to network disruption. Routing to local cache storage.", err);
+        cacheOfflineTransaction(transactionPayload);
+        return { success: false, offline: true };
+    }
+}
+
+function cacheOfflineTransaction(payload) {
+    let localQueue = JSON.parse(localStorage.getItem('offline_vouchers_queue')) || [];
+    payload.client_cached_at = new Date().toISOString(); // Attach local metadata timestamp
+    localQueue.push(payload);
+    localStorage.setItem('offline_vouchers_queue', JSON.stringify(localQueue));
+    
+    document.getElementById('sync-banner').classList.remove('d-none');
+}
+
+// Background Cloud Upload System Loop
+async function processOfflineSynchronizations() {
+    if (!navigator.onLine) return;
+    
+    let localQueue = JSON.parse(localStorage.getItem('offline_vouchers_queue')) || [];
+    if (localQueue.length === 0) {
+        document.getElementById('sync-banner').classList.add('d-none');
+        return;
+    }
+
+    console.log(`Connection verified. Processing ${localQueue.length} cached offline transactions...`);
+    
+    // Process items in a FIFO queue pattern
+    while (localQueue.length > 0) {
+        const currentVoucher = localQueue[0];
+        
+        // Strip client-side tracking metadata before database write
+        const cleanPayload = { ...currentVoucher };
+        delete cleanPayload.client_cached_at;
+
+        try {
+            const { error } = await window.dbInstance.from('transactions').insert([cleanPayload]);
+            if (error) throw error;
+            
+            localQueue.shift(); // Remove row if safely uploaded
+            localStorage.setItem('offline_vouchers_queue', JSON.stringify(localQueue));
+        } catch (fail) {
+            console.error("Batch processing paused: Node structural mismatch or link error.", fail);
+            break; 
+        }
+    }
+
+    if (localQueue.length === 0) {
+        document.getElementById('sync-banner').classList.add('d-none');
+        alert("🎉 Success: All locally cached operational data has synchronized to the cloud workspace.");
+        if(typeof window.fetchLiveBalances === "function") window.fetchLiveBalances();
+    }
+}
+
+// Monitor hardware networking hooks
+window.addEventListener('online', processOfflineSynchronizations);
+window.addEventListener('offline', () => {
+    document.getElementById('sync-banner').classList.remove('d-none');
+});
+
+
+// ==========================================
+// PHASE 3: OPERATIONAL MANAGEMENT PIPELINE
+// ==========================================
+
+async function fetchStaffRoster() {
+    const { data: staff, error } = await window.dbInstance
+        .from('staff_roster')
+        .select('*')
+        .order('name', { ascending: true });
+
+    if (error) return console.error("Roster Extraction Interrupted:", error.message);
+    
+    const tbody = document.getElementById('tbl-staff-body');
+    tbody.innerHTML = staff.map(member => `
+        <tr>
+            <td><strong>${member.name}</strong></td>
+            <td><span class="badge bg-secondary">${member.designation}</span></td>
+            <td class="text-end fw-bold text-light">PKR ${parseFloat(member.base_stipend).toFixed(2)}</td>
+            <td><span class="badge ${member.status === 'Active' ? 'bg-success' : 'bg-danger'}">${member.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+async function fetchReimbursementClaims() {
+    const { data: claims, error } = await window.dbInstance
+        .from('reimbursements')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) return console.error("Reimbursements Matrix Extraction Interrupted:", error.message);
+
+    const tbody = document.getElementById('tbl-reimbursement-body');
+    tbody.innerHTML = claims.map(claim => {
+        let badgeColor = "bg-warning text-dark";
+        if (claim.status === "Approved") badgeColor = "bg-success";
+        if (claim.status === "Rejected") badgeColor = "bg-danger";
+
+        const executionColumnHtml = window.globalUserRole === 'Admin' && claim.status === 'Pending Review'
+            ? `<td class="text-end admin-only">
+                <button onclick="evaluateReimbursementClaim(${claim.id}, 'Approved')" class="btn btn-xs btn-success me-1"><i class="fa-solid fa-check"></i> Approve</button>
+                <button onclick="evaluateReimbursementClaim(${claim.id}, 'Rejected')" class="btn btn-xs btn-outline-danger"><i class="fa-solid fa-xmark"></i> Reject</button>
+               </td>`
+            : `<td class="text-end text-muted small admin-only">Evaluated / No Action</td>`;
+
+        return `
+            <tr>
+                <td><strong>${claim.staff_name}</strong></td>
+                <td><p class="mb-0 text-wrap-normal small">${claim.item_details}</p></td>
+                <td class="text-end fw-bold text-dark">PKR ${parseFloat(claim.amount).toFixed(2)}</td>
+                <td class="text-center"><span class="badge ${badgeColor}">${claim.status}</span></td>
+                ${executionColumnHtml}
+            </tr>
+        `;
+    }).join('');
+}
+
+// TRANSACTION BALANCES CASCADE CONTROLLER
+window.evaluateReimbursementClaim = async function(id, administrativeDecision) {
+    if(!confirm(`Are you sure you want to execute decision: [${administrativeDecision}] for this voucher?`)) return;
+
+    try {
+        // 1. Pull the unique target claim source
+        const { data: claim, error: fetchErr } = await window.dbInstance
+            .from('reimbursements')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (fetchErr) throw fetchErr;
+
+        // 2. If approved, verify balance availability and write to the transaction table
+        if (administrativeDecision === 'Approved') {
+            const ledgerPayload = {
+                date: new Date().toISOString().split('T')[0],
+                type: 'Expense',
+                head_name: 'Operational Reimbursements',
+                narration: `Reimbursement Approved for ${claim.staff_name}: ${claim.item_details}`,
+                amount: claim.amount,
+                entered_by: window.currentUserEmail || 'Admin Session'
+            };
+
+            const writeResult = await safelyExecuteTransaction(ledgerPayload);
+            if(writeResult.offline) {
+                alert("Device dropped connection. Balance change will apply after network sync completes.");
+            }
+        }
+
+        // 3. Update the reimbursement request status record
+        const { error: updateErr } = await window.dbInstance
+            .from('reimbursements')
+            .update({ 
+                status: administrativeDecision,
+                processed_by: window.currentUserEmail || 'Admin System'
+            })
+            .eq('id', id);
+
+        if (updateErr) throw updateErr;
+
+        alert(`Voucher has been successfully resolved as: ${administrativeDecision}`);
+        fetchReimbursementClaims();
+        if(typeof window.fetchLiveBalances === "function") window.fetchLiveBalances();
+
+    } catch (err) {
+        alert("Operation execution failed structural check: " + err.message);
+    }
+
+// Inside your evaluateReimbursementClaim success block:
+alert(`Voucher has been successfully resolved as: ${administrativeDecision}`);
+fetchReimbursementClaims(); // Keeps the current page completely accurate in real-time
+if(typeof window.fetchLiveBalances === "function") window.fetchLiveBalances();
+
+};
+
+// INITIALIZATION RUNNER HOOKS
+document.addEventListener("DOMContentLoaded", () => {
+    fetchStaffRoster();
+    fetchReimbursementClaims();
+    // Run background check loop immediately upon bootup sequence
+    processOfflineSynchronizations();
+});
+
+
+// ==========================================
+// SPA APPLICATION RUNTIME WORKSPACE ROUTER
+// ==========================================
+
+window.switchWorkspaceView = function(targetWorkspaceId, clickedElement) {
+    // 1. Route through the core architecture wrapper to lock down and clean screens
+    window.showPage(targetWorkspaceId);
+
+    // 2. If modern workspace view is requested, override sub-architectures
+    if (clickedElement) {
+        document.querySelectorAll('.navigation-menu .nav-link, .sidebar .nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        clickedElement.classList.add('active');
+    }
+
+    // 3. Optimized Network Operations Fetch
+    if (targetWorkspaceId === 'operations-workspace') {
+        if (typeof fetchStaffRoster === "function") fetchStaffRoster();
+        if (typeof fetchReimbursementClaims === "function") fetchReimbursementClaims();
+    }
+    };
+    
