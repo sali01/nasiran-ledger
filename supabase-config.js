@@ -130,4 +130,4 @@ function teardownDashboard() {
         loginBtn.disabled = true; // Safe lock until cloud connection establishes
     }
     testSupabaseConnection();
-}
+    }
